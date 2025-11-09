@@ -86,9 +86,20 @@ class CashfreeV2 extends Gateway
         }
 
         // Phone number is ALWAYS required by Cashfree API
-        if (!$invoice->user->properties()->where('key', 'phone')->exists()) {
+        $phoneProperty = $invoice->user->properties()->where('key', 'phone')->first();
+        if (!$phoneProperty || empty($phoneProperty->value)) {
             return view('extensions.gateways.cashfreev2::error', [
                 'error' => 'A valid phone number is required to make payments with Cashfree. Please update your account details with a phone number.',
+            ]);
+        }
+
+        // Validate phone number format (remove spaces, dashes, etc.)
+        $phone = preg_replace('/[^0-9+]/', '', $phoneProperty->value);
+        
+        // Cashfree expects phone in format: +91XXXXXXXXXX or just XXXXXXXXXX (10 digits for India)
+        if (!preg_match('/^(\+91)?[6-9]\d{9}$/', $phone)) {
+            return view('extensions.gateways.cashfreev2::error', [
+                'error' => 'Invalid phone number format. Please use a valid 10-digit Indian mobile number (e.g., 9876543210 or +919876543210).',
             ]);
         }
 
@@ -107,6 +118,12 @@ class CashfreeV2 extends Gateway
 
         $orderId = strtoupper(uniqid('inv_') . '_' . $invoice->id);
 
+        // Ensure phone number starts with country code for Cashfree
+        $formattedPhone = $phone;
+        if (!str_starts_with($phone, '+')) {
+            $formattedPhone = '+91' . $phone;
+        }
+
         // Cashfree requires customer_id, customer_phone, customer_email, and customer_name
         $payload = [
             'order_amount' => (float)$total,
@@ -114,9 +131,9 @@ class CashfreeV2 extends Gateway
             'order_id' => $orderId,
             'customer_details' => [
                 'customer_id' => (string)$invoice->user->id,
-                'customer_phone' => $invoice->user->properties()->where('key', 'phone')->first()->value,
+                'customer_phone' => $formattedPhone,
                 'customer_email' => $invoice->user->email,
-                'customer_name' => $invoice->user->name,
+                'customer_name' => $invoice->user->name ?? 'Customer',
             ],
             'order_meta' => [
                 'return_url' => route('extensions.gateways.cashfreev2.callback', ['invoiceId' => $invoice->id]),
@@ -209,7 +226,28 @@ class CashfreeV2 extends Gateway
                     'orderId' => $orderId,
                 ]);
             }
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $response = $e->getResponse();
+            $errorBody = $response ? $response->getBody()->getContents() : 'No response body';
+            
+            // Try to parse the error message
+            $errorMessage = 'Failed to create payment order. ';
+            if ($response) {
+                $errorData = json_decode($errorBody, true);
+                if (isset($errorData['message'])) {
+                    $errorMessage .= $errorData['message'];
+                } elseif (isset($errorData['error_description'])) {
+                    $errorMessage .= $errorData['error_description'];
+                } else {
+                    $errorMessage .= 'Please check your payment details and try again.';
+                }
+            }
+            
+            return view('extensions.gateways.cashfreev2::error', [
+                'error' => $errorMessage,
+            ]);
         } catch (\Exception $e) {
+            
             throw new \Exception('Failed to create order: ' . $e->getMessage());
         }
     }
