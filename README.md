@@ -30,15 +30,24 @@ A modern CashfreeV2 payment gateway extension for [Paymenter](https://paymenter.
 - Laravel framework
 
 ## 📥 Installation
+### Git Clone
+1. Use this command to clone the repository in to the your paymenter project
+Make sure run this command inside the folder `extensions/Gateways`
+```bash
+git clone https://github.com/username/cashfree-payment-gateway.git CashFreeV2
+```
+2. The extension will be automatically detected by Paymenter.
 
+3. Navigate to **Admin Panel → Settings → Gateways** and enable CashfreeV2.
+
+### Manual Download and Copy
 1. Copy the `CashfreeV2` folder to your Paymenter extensions directory:
    ```
    /extensions/Gateways/CashfreeV2/
    ```
 
-2. The extension will be automatically detected by Paymenter.
+2. Follow steps of 2-3 of Git Clone
 
-3. Navigate to **Admin Panel → Settings → Gateways** and enable CashfreeV2.
 
 ## ⚙️ Configuration
 
@@ -51,7 +60,7 @@ A modern CashfreeV2 payment gateway extension for [Paymenter](https://paymenter.
 4. Copy your **Test App ID** and **Test Secret Key**
 
 #### For Production (Live):
-1. Complete KYC verification on Cashfree
+1. Follow step 1-3 of Sandbox
 2. Get your **Production App ID** and **Production Secret Key** from the same location
 
 ### 2. Configure in Paymenter
@@ -235,20 +244,22 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For issues and questions:
 - Create an issue on GitHub
-- Contact ServersBay support
+- Contact Master S Jit support
 - Check [Cashfree Documentation](https://docs.cashfree.com/reference/pg-new-apis-endpoint)
 
 ## 🔗 Links
 
 - [Paymenter](https://paymenter.org)
-- [CashfreeV2](https://www.cashfree.com/)
+- [CashfreeV2](https://github.com/MasterSJit/cashfree-paymenter-gateway.git)
 - [Cashfree API Documentation](https://docs.cashfree.com/reference/pg-new-apis-endpoint)
 - [Cashfree Dashboard](https://merchant.cashfree.com/)
 
 ## ⚠️ Disclaimer
 
-This extension is provided as-is. While we strive for reliability, please test thoroughly in sandbox mode before using in production. ServersBay is not responsible for any financial losses or issues arising from the use of this extension.
+This extension is provided as-is. While we strive for reliability, please test thoroughly in sandbox mode before using in production. Master S Jit is not responsible for any financial losses or issues arising from the use of this extension.
 
 ---
 
-**Made with ❤️ by ServersBay**
+**Made with ❤️ by Master S Jit**
+
+**Supported by ServersBay (Blazing Fast Hosting Services)**
